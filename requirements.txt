@@ -1,12 +1,16 @@
-opencv-python
-jupyter
-tensorboard
-matplotlib
+opencv-python==4.7.*
+jupyter==1.0
+tensorboard==2.12.*
+matplotlib==3.7.*
 
-tqdm  # progressbar
-transformers  # tokenizer
+tqdm==4.65  # progressbar
+transformers==4.28.*  # tokenizer
 
 # gpu profiler
-nvidia-ml-py3
-pynvml
-psutil
+nvidia-ml-py3==7.352
+pynvml==11.5
+psutil==5.9.*
+
+torch==1.13.*
+torchvision==0.14.*
+torchtext==0.14.*
