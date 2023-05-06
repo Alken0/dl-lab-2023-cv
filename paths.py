@@ -9,5 +9,5 @@ CV_PATH_CKPT = os.environ.get(
     "CV_PATH_CKPT", "/project/dl2023s/lmbcvtst/public/ckpt")
 
 # # uncomment below for local dataset and model
-# CV_PATH_VOC = "data/VOCdevkit/VOC2012"
-# CV_PATH_CKPT = "ckpt"
+CV_PATH_VOC = "data/VOCdevkit/VOC2012"
+CV_PATH_CKPT = "ckpt"
