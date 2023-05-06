@@ -2,6 +2,7 @@ outputs/
 experiments/
 notebooks/
 data/
+ckpt/
 
 *.tar*
 
