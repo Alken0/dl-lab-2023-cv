@@ -1,0 +1,3 @@
+argmax (no topk)
+
+=> all default
