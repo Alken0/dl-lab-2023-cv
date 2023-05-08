@@ -187,7 +187,13 @@ class BlipCaption(BlipBase):
         while True:
             # START TODO #################
             # same as in function greedy_search above to get the next_token_logits
-            raise NotImplementedError
+            next_token_logits = self.text_decoder.forward(
+                input_ids=input_ids,
+                attention_mask=attention_mask,
+                encoder_hidden_states=encoder_hidden_states,
+                encoder_attention_mask=encoder_attention_mask
+            )
+            next_token_logits = next_token_logits[:, -1, :]
             # END TODO ###################
 
             # enforce minimum length
@@ -196,10 +202,15 @@ class BlipCaption(BlipBase):
 
             # START TODO #################
             # 1. modify the next_token_logits as given by the temperature
+            next_tokens_logits /= temperature
             # 2. apply the topk sampling algorithm. useful commands are:
             # torch.topk, F.softmax, torch.multinomial, torch.gather
+            top_values, top_indices = torch.topk(next_tokens_logits, k=topk, dim=1)
+            probs = F.softmax(top_values, dim=1)
+            multinomial = torch.multinomial(probs, num_samples=1)
+            next_tokens = torch.gather(top_indices, index=multinomial, dim=1)
             # 3. same as above, add the new token to the input_ids
-            raise NotImplementedError
+            input_ids = torch.cat([input_ids, next_tokens], dim=1)
             # END TODO ###################
 
             # after extending the input_ids, also extend the attention_mask to match
