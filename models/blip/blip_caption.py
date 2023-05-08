@@ -19,7 +19,7 @@ class BlipCaption(BlipBase):
         super().__init__()
         self.tokenizer = self.init_tokenizer()
         self.visual_encoder = image_encoder
-        self.text_decoder = text_decoder
+        self.text_decoder: BertLMHeadModel = text_decoder
         self.max_txt_len = max_txt_len
         self.cfg = cfg
 
@@ -65,7 +65,7 @@ class BlipCaption(BlipBase):
         # encode images
         # START TODO #################
         # Pass the image through the visual encoder to get the image embeddings
-        raise NotImplementedError
+        image_embeds = self.visual_encoder(image)
         # END TODO ###################
         image_atts = torch.ones(image_embeds.shape[:-1], dtype=torch.long).to(device)
         validate_encoder_outputs(image_embeds, image_atts)
@@ -128,9 +128,15 @@ class BlipCaption(BlipBase):
             # START TODO #################
             # 1. forward pass through self.text_decoder to get the next token logits.
             # the text decoder is a model of type BertLMHeadModel defined in models/bert/bert.py
+            next_token_logits = self.text_decoder.forward(
+                input_ids=input_ids,
+                attention_mask=attention_mask,
+                encoder_hidden_states=encoder_hidden_states,
+                encoder_attention_mask=encoder_attention_mask
+            )
             # 2. select only the last token's output from the output logits, these are the logits
+            next_token_logits = next_token_logits[:, -1, :]
             # used for predicting the next token.
-            raise NotImplementedError
             # END TODO ###################
             # logits shape (batch_size, current_sequence_len, vocab_size)
             # next_token_logits shape (batch_size, vocab_size)
@@ -141,10 +147,12 @@ class BlipCaption(BlipBase):
             # START TODO #################
             # 1. select the token index with the maximum probability (argmax of the next
             # token scores) to get next_tokens shape (batch_size,)
+            next_tokens = torch.argmax(next_tokens_logits, dim=1)
             # 2. change the shape of next_tokens from (batch_size,) to (batch_size, 1) by adding
             # a new dimension
+            next_tokens = torch.unsqueeze(next_tokens, dim=1)
             # 3. use torch.cat to combine the current input_ids and the new tokens
-            raise NotImplementedError
+            input_ids = torch.cat([input_ids, next_tokens], dim=-1)
             # END TODO ###################
 
             # after extending the input_ids, also extend the attention_mask to match
