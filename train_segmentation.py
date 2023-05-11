@@ -76,7 +76,13 @@ def main(args):
     elif args.decoder_type == "transformer":
         # START TODO #################
         # complete the implementation of TransformerSegmentationHead and use it as a decoder. Use the same embed_dim and num_heads as the encoder, don't forget the flag for the shared QK attention.
-        raise NotImplementedError
+        decoder = TransformerSegmentationHead(
+            len(training_dataset.classes),
+            encoder.embed_dim,
+            encoder.num_heads,
+            encoder.num_heads,
+            args.transformer_head_shared_qk
+        )
         # END TODO ###################
     else:
         raise ValueError

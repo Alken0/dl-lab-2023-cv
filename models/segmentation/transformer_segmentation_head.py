@@ -9,13 +9,13 @@ class AttentionSameQK(Attention):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         dim = args[0]
-        qkv_bias=False
+        qkv_bias = False
         self.qkv = None
         # START TODO #################
         # re-build the self.qkv layer for shared Q and K projections
         raise NotImplementedError
         # END TODO ###################
-    
+
     def forward(self, x):
         # START TODO #################
         # re-implement the forward pass with shared Q and K. See models/vit/vit.py
@@ -35,13 +35,14 @@ class AttentionSameQK(Attention):
 # Implementation of a transformer head for segmentation, using extra learnable class embeddings.
 
 class TransformerSegmentationHead(nn.Module):
-    def __init__(self, num_classes, dim, num_heads, mlp_ratio=1., qkv_bias=False, qk_scale=None, act_layer=nn.GELU, norm_layer=nn.LayerNorm, shared_qk=False):
+    def __init__(self, num_classes, dim, num_heads, mlp_ratio=1., qkv_bias=False, qk_scale=None, act_layer=nn.GELU,
+                 norm_layer=nn.LayerNorm, shared_qk=False):
         super().__init__()
         self.num_classes = num_classes
 
         # START TODO #################
         # add learnable class parameters/embeddings
-        raise NotImplementedError
+        self.embed = nn.Parameter(torch.randn(num_classes, dim))
         # END TODO ###################
 
         # normalization layer before attention
@@ -67,31 +68,38 @@ class TransformerSegmentationHead(nn.Module):
     def forward(self, x):
         # reshape (patch) embeddings from encoder
         b, c, h, w = x.shape
-        x = x.permute(0, 2, 3, 1).contiguous().view(b, h*w, c)
+        x = x.permute(0, 2, 3, 1).contiguous().view(b, h * w, c)
 
         # START TODO #################
         # concatenate patch embeddings with class embeddings
-        raise NotImplementedError
+        embed = self.embed.expand(b, -1, -1)
+        x = torch.cat([embed, x], dim=1)
+        residual = x
         # END TODO ###################
 
         # START TODO #################
         # normalize and compute self attention
-        raise NotImplementedError
+        x = self.norm1(x)
+        x = self.attn(x)
         # END TODO ###################
 
         # START TODO #################
         # residual connection and normalization
-        raise NotImplementedError
+        x = residual + x
+        x = self.norm2(x)
         # END TODO ###################
 
         # START TODO #################
         # split patch and class embeddings, apply mlps
-        raise NotImplementedError
+        classes, patches = x[:, 0:self.num_classes], x[:, self.num_classes:]
+        classes = self.classes_mlp(classes)
+        patches = self.patches_mlp(patches)
         # END TODO ###################
 
         # START TODO #################
-        # compute segmentation masks via patch-class similarity (you can use matmul or the @ operator) and normalize. 
-        raise NotImplementedError
+        # compute segmentation masks via patch-class similarity (you can use matmul or the @ operator) and normalize.
+        masks = patches @ self.embed.transpose(-1, -2)
+        masks = self.mask_norm(masks)
         # END TODO ###################
 
         # reshape masks from (B, H*W, C) to (B, C, H, W)
