@@ -44,9 +44,9 @@ def main(args):
                              transforms=test_pipeline)
 
     # setup loaders
-    training_loader = DataLoader(training_dataset, shuffle=True, batch_size=args.batch_size, num_workers=1,
+    training_loader = DataLoader(training_dataset, shuffle=True, batch_size=args.batch_size, num_workers=4,
                                  drop_last=True)
-    val_loader = DataLoader(val_dataset, shuffle=False, batch_size=1, num_workers=1)
+    val_loader = DataLoader(val_dataset, shuffle=False, batch_size=1, num_workers=4)
 
     logging.info(f"Training samples: {len(training_dataset)}, validation samples: {len(val_dataset)}")
 
@@ -65,7 +65,13 @@ def main(args):
     elif args.decoder_type == "convolutional":
         # START TODO #################
         # implement a small convolutional decoder
-        raise NotImplementedError
+        decoder = nn.Conv2d(
+            in_channels=encoder.embed_dim,
+            out_channels=len(training_dataset.classes),
+            kernel_size=3,
+            padding=1,
+            padding_mode="replicate"
+        )
         # END TODO ###################
     elif args.decoder_type == "transformer":
         # START TODO #################
