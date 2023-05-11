@@ -77,11 +77,10 @@ def main(args):
         # START TODO #################
         # complete the implementation of TransformerSegmentationHead and use it as a decoder. Use the same embed_dim and num_heads as the encoder, don't forget the flag for the shared QK attention.
         decoder = TransformerSegmentationHead(
-            len(training_dataset.classes),
-            encoder.embed_dim,
-            encoder.num_heads,
-            encoder.num_heads,
-            args.transformer_head_shared_qk
+            num_classes=len(training_dataset.classes),
+            dim=encoder.embed_dim,
+            num_heads=encoder.num_heads,
+            shared_qk=args.transformer_head_shared_qk
         )
         # END TODO ###################
     else:

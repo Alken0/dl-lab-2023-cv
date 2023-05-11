@@ -13,13 +13,23 @@ class AttentionSameQK(Attention):
         self.qkv = None
         # START TODO #################
         # re-build the self.qkv layer for shared Q and K projections
-        raise NotImplementedError
+        self.qkv = nn.Linear(dim, dim * 2, bias=qkv_bias)
         # END TODO ###################
 
     def forward(self, x):
         # START TODO #################
         # re-implement the forward pass with shared Q and K. See models/vit/vit.py
-        raise NotImplementedError
+        B, N, C = x.shape
+        qkv = (
+            self.qkv(x)
+            .reshape(B, N, 2, self.num_heads, C // self.num_heads)
+            .permute(2, 0, 3, 1, 4)
+        )
+        q, k, v = (
+            qkv[0],
+            qkv[0],
+            qkv[1],
+        )  # make torchscript happy (cannot use tensor as tuple)
         # END TODO ###################
 
         attn = (q @ k.transpose(-2, -1)) * self.scale
