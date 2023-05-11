@@ -304,17 +304,18 @@ class Bleu:
         return "Bleu"
 
 
-def corpus_bleu(refs_list, pred_list, weights=(0.25, 0.25, 0.25, 0.25)):
+def corpus_bleu(refs_list, pred_list, n=4):
     """
 
     Args:
         refs_list: list of list of references (there can be multiple references per prediction)
         pred_list: list of predictions
-        weights: weights for unigrams, bigrams, trigrams and fourgrams
+        n: use all n-grams up to n
 
     Returns:
         bleu4 float
     """
+    assert n in {1, 2, 3, 4}, f"n must be in {1, 2, 3, 4} but got {n}"
     # sanity check the input
     assert len(refs_list) == len(pred_list), (
         f"Got {len(refs_list)} references and {len(pred_list)} predictions")
@@ -335,7 +336,7 @@ def corpus_bleu(refs_list, pred_list, weights=(0.25, 0.25, 0.25, 0.25)):
         refs_dict[i] = refs_list[i]
         pred_dict[i] = [pred_list[i]]
     score, scores = scorer.compute_score(refs_dict, pred_dict, verbose=0)
-    score_scalar = sum([s * w for s, w in zip(score, weights)])
+    score_scalar = score[n-1]
     logging.info(f"BLEU " + ", ".join(f"{i + 1}-grams: {s}" for i, s in enumerate(score)))
     logging.info(f"Final BLEU@4: {score_scalar:.2%}")
 
