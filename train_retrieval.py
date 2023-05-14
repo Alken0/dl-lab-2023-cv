@@ -34,9 +34,9 @@ def main():
                                               "faster dataloading)", type=int, default=0)
     parser.add_argument("--output_dir", help="Output directory",
                         type=str, default="outputs/train_retrieval")
-    parser.add_argument("--learning_rate", type=float, default=1e-3)
-    parser.add_argument("--weight_decay", type=float, default=1e-3)
-    parser.add_argument("--epochs", type=int, default=5)
+    parser.add_argument("--learning_rate", type=float, default=1e-5)
+    parser.add_argument("--weight_decay", type=float, default=0)
+    parser.add_argument("--epochs", type=int, default=3)
     parser.add_argument("--temperature", type=float, default=0.1)
     parser.add_argument("--finetune", help="Finetune the retrieval head instead of training it "
                                            "from scratch.", action="store_true")
@@ -53,6 +53,7 @@ def main():
     logging.info(f"Created model {type(model).__name__} with {model.show_n_params()} parameters.")
     model.load_checkpoint(Path(paths.CV_PATH_CKPT) / "blip_model_base.pth")
     if args.finetune:
+        print("finetune!!")
         model.load_retrieval_head(Path(paths.CV_PATH_CKPT) / "blip_model_retrieval_head.pth")
     model = model.to(device)
     model.train()
