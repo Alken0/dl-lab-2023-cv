@@ -78,10 +78,13 @@ class BlipRetrieval(BlipBase):
     def forward_image(self, image):
         # START TODO #################
         # 1. Pass the image through the visual encoder to get the image embeddings
+        img_embeds = self.visual_encoder(image)
         # 2. Select the CLS token output (the first token in the sequence)
+        cls = img_embeds[:, 0, :]
         # 3. Run it through the visual projection layer
+        image_feat = self.vision_proj(cls)
         # 4. Normalize it with F.normalize
-        raise NotImplementedError
+        image_feat = F.normalize(image_feat)
         # END TODO ###################
 
         return image_feat
@@ -99,9 +102,11 @@ class BlipRetrieval(BlipBase):
 
         # START TODO #################
         # 1. Select the CLS token output (the first token in the sequence)
+        cls = text_embeds[:, 0, :]
         # 2. Run it through the text projection layer
+        text_feat = self.text_proj(cls)
         # 3. Normalize it with F.normalize
-        raise NotImplementedError
+        text_feat = F.normalize(text_feat)
         # END TODO ###################
 
         return text_feat

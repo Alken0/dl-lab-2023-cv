@@ -130,11 +130,17 @@ def train_epoch(epoch, model, dataloader, optimizer, scheduler, loss_fn, device,
         # START TODO #################
         # 1. Compute image-to-text and text-to-image similarity matrices (without softmax).
         # Don't forget to divide them by the temperature parameter.
+        similarity_img2txt = torch.matmul(image_feat, text_feat.transpose(0, 1)) / temperature
+        similarity_txt2img = torch.matmul(text_feat, image_feat.transpose(0, 1)) / temperature
         # 2. Define the one-hot targets, an identity matrix (take care to select the correct device
         # and dtype)
+        batch_size = len(caption)
+        one_hot_targets = torch.eye(batch_size, device=device, dtype=torch.float)
         # 3. Compute the image-to-text and text-to-image cross-entropy loss.
+        loss_im2txt = loss_fn(similarity_img2txt, one_hot_targets)
+        loss_txt2im = loss_fn(similarity_txt2img, one_hot_targets)
         # 4. Compute the final loss as weighted average of the two losses.
-        raise NotImplementedError
+        loss = (loss_im2txt + loss_txt2im) / 2  # only divide by 2 because of what was said in the tutorium
         # END TODO ###################
 
         # optimization
